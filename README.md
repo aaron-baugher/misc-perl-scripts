@@ -4,8 +4,9 @@ Misc. Perl Scripts
 These are some Perl scripts that don't justify their own repository.  See
 the POD in each script for more details on it.
 
-poolheal - heal characters in C64 Pool of Radiance
-poolview - view character stats in C64 Pool of Radiance
+- poolheal - heal characters in C64 Pool of Radiance
+
+- poolview - view character stats in C64 Pool of Radiance
 
 These two scripts work with the C64 emulator Vice, by tweaking bytes in the
 snapshot file.  Viewing stats is slow, because you have to view each
