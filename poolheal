@@ -1,0 +1,68 @@
+#!/usr/bin/env perl 
+
+use 5.010; use strict; use warnings;
+
+my $maxoffset = 0x4d74;
+my $maxleach  = 256;
+my $curoffset = 0x838d;
+my $curleach = 0x20;
+
+my $filename = $ARGV[0] || "$ENV{HOME}/.vice/C64.vsf";
+
+open F, "+<$filename" or die $!;
+binmode F;
+
+for (0..7){
+    my $seek;
+    seek( F, $maxoffset + $maxleach * $_, 0 ) or die $!;
+    my( $name, $maxhp, $curhp );
+    read( F, $name, 16 ) or die $!;
+    $name = unpack "a16", $name;
+    next if( $name !~ /^[a-zA-Z0-9]/ );
+    $name =~ s/[^a-zA-z0-9\-\_ ]//g;
+    seek( F, $maxoffset + $maxleach * $_ + 0x76, 0 ) or die $!;
+    read( F, $maxhp, 1 ) or die $!;
+    my $maxhpd = unpack "C", $maxhp;
+    seek( F, $curoffset + $curleach * $_, 0) or die $!;
+    read( F, $curhp, 1 ) or die $!;
+    my $curhpd = unpack "C", $curhp;
+    if( $curhpd != $maxhpd ){
+	seek( F, $curoffset + $curleach * $_, 0 ) or die $!;
+	print F $maxhp;
+    }
+    printf "%16s %3d -> %3d\n", $name, $curhpd, $maxhpd;
+}
+close F;
+
+=head1 Name
+
+poolheal - Heal characters in Pool of Radiance
+
+=head1 Usage
+
+./poolheal <snapshot file>
+
+=head1 Description
+
+This script heals all characters to maximum hit points.  It works with the
+snapshot file of the C64 emulator Vice.  To use it, save a snapshot, run
+this script on it (it defaults to ~/.vice/C64.vsf), then reload the
+snapshot.  As soon as you take an action, the new HP levels will appear.
+
+=head1 Requirements
+
+Vice C64 emulator
+Pool of Radiance game
+
+=head1 See Also
+
+https://github.com/aaron-baugher/misc-perl-scripts
+
+=head1 Author
+
+Aaron Baugher - aaron.baugher.biz
+
+=cut
+
+
+

@@ -1,0 +1,134 @@
+#!/usr/bin/perl 
+
+use 5.010; use strict; use warnings;
+my $offset = 0x4d74;
+my $leach  = 256;
+
+my %thiefxp = ( 2 => 1250,
+	      3 => 2500,
+	      4 => 5000,
+	      5 => 10000,
+	      6 => 20000,
+	      7 => 42500,
+	      8 => 70000,
+	      9 => 110000
+	      );
+
+my %clericxp = ( 2 => 1500,
+		 3 => 3000,
+		 4 => 6000,
+		 5 => 13000,
+		 6 => 27500
+		 );
+
+my %fighterxp = ( 2 => 2000,
+		  3 => 4000,
+		  4 => 8000,
+		  5 => 18000,
+		  6 => 35000,
+		  7 => 70000,
+		  8 => 125000
+		  );
+
+my %magexp = ( 2 => 2500,
+	       3 => 5000,
+	       4 => 10000,
+	       5 => 22500,
+	       6 => 40000
+	       );
+
+my $filename = $ARGV[0] || "$ENV{HOME}/.vice/C64.vsf";
+
+open F, $filename or die $!;
+binmode F;
+my $junk;
+read F, $junk, $offset;
+my @chars;
+my $news;
+
+for (0..7){
+    read F, $chars[$_], $leach;
+    my( $name, 
+	$str, $int, $wis, $dex, $con, $chr, $stb, 
+	$cp, $sp, $ep, $gp, $pp, $gems, $jewelry, 
+	$ml, $cl, $tl, $fl, 
+	$xp ) = unpack( 'a16x4C7x160v7C4x27v', $chars[$_]);
+    next if( $name !~ /^[a-zA-Z0-9]/ );
+    $name =~ s/[^a-zA-z0-9\-\_ ]//g;
+    $gp += int( $cp/200 + $sp/20 + $ep/2 + $pp*5 );
+    printf "%-16s", $name;
+    my @levels;
+    if( $ml ){
+	push @levels, "M$ml";
+    }
+    if( $cl ){
+	push @levels, "C$cl";
+    }
+    if( $tl ){
+	push @levels, "T$tl";
+    }
+    if( $fl ){
+	push @levels, "F$fl";
+    }
+
+    print( " $str". ( $stb ? "($stb)" : '' ). 
+	   " $int $wis $dex $con $chr    ". 
+	   join( '/', @levels ),
+	   "   XP: $xp\n" );
+    print ' ' x 17, "GP: $gp    Gems: $gems    Jewelry: $jewelry\n";
+
+    if( $cl and $xp > $clericxp{$cl+1} and $clericxp{$cl+1} ){
+	$news .= "$name is ready to advance to level ".($cl+1)." Cleric!\n";
+    }
+    if( $tl and $xp > $thiefxp{$tl+1} and $thiefxp{$tl+1}){
+	$news .= "$name is ready to advance to level ".($tl+1)." Thief!\n";
+    }
+    if( $ml and $xp > $magexp{$ml+1} and $magexp{$ml+1}){
+	$news .= "$name is ready to advance to level ".($ml+1)." Magic-User!\n";
+    }
+    if( $fl and $xp > $fighterxp{$fl+1} and $fighterxp{$fl+1}){
+	$news .= "$name is ready to advance to level ". ($fl+1)." Fighter!\n";
+    }
+}
+close F;
+print $news if $news;
+exit;
+for my $i (0..255){
+    printf "%02x     ", $i;
+    for my $j (0..5){ 
+	print unpack( "H2", substr( $chars[$j], $i, 1)), '     ';
+    }
+    print "\r\n";
+}
+
+=head1 Name
+
+poolview - View character stats in Pool of Radiance
+
+=head1 Usage
+
+./poolview <snapshot file>
+
+=head1 Description
+
+This script shows the critical stats of your characters in Pool of Radiance.
+It works with the snapshot file of the C64 emulator Vice (the default file
+is ~/.vice/C64.vsf).  To use it, save a snapshot and then run poolview on
+it.  It shows stats, valuables, levels, and notifies you if any of your
+characters are ready to advance in level.
+
+=head1 Requirements
+
+Vice C64 emulator (x64)
+Pool of Radiance game
+
+=head1 See Also
+
+https://github.com/aaron-baugher/misc-perl-scripts
+
+=head1 Author
+
+Aaron Baugher - aaron.baugher.biz
+
+=cut
+
