@@ -4,13 +4,17 @@ Misc. Perl Scripts
 These are some Perl scripts that don't justify their own repository.  See
 the POD in each script for more details on it.
 
-- poolheal - heal characters in C64 Pool of Radiance
+I've moved this project to <a href='https://gitlab.com/aaron-baugher/misc-perl-scripts'>GitLab.com</a>, due to GitHub's SJW speech policing.  Migration is very easy:
 
-- poolview - view character stats in C64 Pool of Radiance
+1. Create an account at GitLab.com.
+2. Create a new repository there.
+3. It will ask if you want to import the project from GitHub (or a few other places).
+4. Select GitHub.
+5. It will offer to import all your other projects as well.
+6. Say Yes.
 
-These two scripts work with the C64 emulator Vice, by tweaking bytes in the
-snapshot file.  Viewing stats is slow, because you have to view each
-character individually.  Healing up characters takes forever as characters
-reach higher levels, as you repeatedly cast
-healing spells and then memorize them.  These scripts speed up both tasks.
-
+7. On your local system:
+8. cd into project directory
+9. `git remote -v` to see current git URL
+10. `git remote set-url origin NEWURL` where NEWURL is the GitLab URL (probably the same as before s/github/gitlab/)
+11. `git push` will say everything is up-to-date or error if there are differences
